@@ -137,7 +137,7 @@ class Booths_Rest extends WP_REST_Controller {
 	public function get_items( $request ) {
 
         $args             = array();
-		$args['title']    = ! empty( $request->get_param( 'title' ) ) ? $request->get_param( 'title' ) : '';
+		$args['title']    = ! empty( $request->get_param( 'title' ) ) ? strtolower( $request->get_param( 'title' ) ) : '';
 		$args['number']   = ! empty( $request->get_param( 'number' ) ) ? $request->get_param( 'number' ) : 0;
 		$args['category'] = ! empty( $request->get_param( 'category' ) ) ? $request->get_param( 'category' ) : 0;
 		$page             = ! empty( $request->get_param( 'page' ) ) ? $request->get_param( 'page' ) : 1;

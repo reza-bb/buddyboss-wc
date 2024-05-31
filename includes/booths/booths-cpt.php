@@ -44,7 +44,8 @@ class Booths_CPT {
      * @return Hooks
      */
     public static function instance() {
-        if ( !self::$instance ) {
+
+        if ( ! self::$instance ) {
             self::$instance = new self();
         }
 
@@ -58,9 +59,9 @@ class Booths_CPT {
      */
     public function init() {
         $this->booth_number_meta = $this->post_type . '_booth_number';
-        add_action( 'init', [$this, 'register_booths'] );
-        add_action( 'init', [$this, 'register_booths_taxonomy'] );
-        add_action( 'admin_menu', [$this, 'register_booths_submenu'] );
+        add_action( 'init', array($this, 'register_booths') );
+        add_action( 'init', array($this, 'register_booths_taxonomy') );
+        add_action( 'admin_menu', array($this, 'register_booths_submenu') );
         add_action( 'add_meta_boxes', array( $this, 'add_booth_meta_boxes' ) );
         add_action( 'save_post', array( $this, 'save_booth_meta_boxes' ) );
     }
@@ -71,7 +72,7 @@ class Booths_CPT {
      * @return  void
      */
     public function register_booths() {
-        $labels = [
+        $labels = array(
             'name'               => __( 'BuddyBoss WC Booths', 'buddyboss-wc' ),
             'singular_name'      => __( 'BuddyBoss WC Booth', 'buddyboss-wc' ),
             'menu_name'          => __( 'BuddyBoss WC Booths', 'buddyboss-wc' ),
@@ -86,26 +87,27 @@ class Booths_CPT {
             'not_found'          => __( 'No BuddyBoss WC Booths found', 'buddyboss-wc' ),
             'not_found_in_trash' => __( 'No BuddyBoss WC Booths found in trash', 'buddyboss-wc' ),
             'parent'             => __( 'Parent BuddyBoss WC Booths', 'buddyboss-wc' ),
-        ];
+        );
 
-        $args = [
+        $args = array(
             'labels'             => $labels,
             'public'             => true,
             'publicly_queryable' => true,
             'show_ui'            => true,
             'show_in_menu'       => false,
             'query_var'          => true,
-            'rewrite'            => ['slug' => 'bbwc-booths'],
+            'rewrite'            => array('slug' => 'bbwc-booths'),
             'capability_type'    => 'post',
             'has_archive'        => true,
             'hierarchical'       => false,
             'menu_position'      => 9,
-            'supports'           => ['title', 'editor'],
-        ];
+            'supports'           => array('title', 'editor', 'thumbnail'),
+        );
 
         if ( function_exists( 'register_post_type' ) ) {
             register_post_type( $this->post_type, $args );
         }
+
     }
 
     /**
@@ -114,7 +116,7 @@ class Booths_CPT {
      * @return void
      */
     public function register_booths_taxonomy() {
-        $labels = [
+        $labels = array(
             'name'                       => __( 'Booth categories', 'buddyboss-wc' ),
             'singular_name'              => __( 'Booth category', 'buddyboss-wc' ),
             'menu_name'                  => __( 'Booth category', 'buddyboss-wc' ),
@@ -135,9 +137,9 @@ class Booths_CPT {
             'no_terms'                   => __( 'No genres', 'buddyboss-wc' ),
             'items_list'                 => __( 'Genres list', 'buddyboss-wc' ),
             'items_list_navigation'      => __( 'Genres list navigation', 'buddyboss-wc' ),
-        ];
+        );
 
-        $args = [
+        $args = array(
             'labels'            => $labels,
             'hierarchical'      => true,
             'public'            => true,
@@ -145,11 +147,12 @@ class Booths_CPT {
             'show_admin_column' => true,
             'show_in_nav_menus' => true,
             'show_tagcloud'     => true,
-        ];
+        );
 
         if ( function_exists( 'register_taxonomy' ) ) {
-            register_taxonomy( $this->post_taxonomy, [$this->post_type], $args ); //
+            register_taxonomy( $this->post_taxonomy, array($this->post_type), $args ); //
         }
+
     }
 
     /**
@@ -160,9 +163,11 @@ class Booths_CPT {
      * @return object
      */
     public function prepare_term( $term, $taxonomy ) {
+
         if ( 'bbwc-booths-category' !== $taxonomy ) {
             return $term;
         }
+
         return $term;
     }
 
@@ -182,7 +187,7 @@ class Booths_CPT {
             '',
         );
 
-        $booth_cat_url = 'edit-tags.php?taxonomy='. $this->post_taxonomy .'&post_type=' . $this->post_type;
+        $booth_cat_url = 'edit-tags.php?taxonomy=' . $this->post_taxonomy . '&post_type=' . $this->post_type;
         add_submenu_page(
             'buddyboss-wc',
             __( 'Booths Category', 'buddyboss-wc' ),
@@ -201,12 +206,12 @@ class Booths_CPT {
      * @return void
      */
     public function add_booth_meta_boxes() {
-        add_meta_box( 
-            'bbwc-booths-meta-box', 
+        add_meta_box(
+            'bbwc-booths-meta-box',
             esc_html__( 'Additional data', 'buddyboss-wc' ),
-            array( $this, "render_booths_metabox" ), 
-            $this->post_type, 
-            'normal', 
+            array( $this, "render_booths_metabox" ),
+            $this->post_type,
+            'normal',
             'default'
         );
     }
@@ -238,16 +243,17 @@ class Booths_CPT {
             return;
         }
 
-        if ( 
-            'POST' !== $_SERVER['REQUEST_METHOD'] || 
+        if (
+            'POST' !== $_SERVER['REQUEST_METHOD'] ||
             ! wp_verify_nonce( $_POST[$_POST['post_type'] . '_noncename'], plugin_basename( __FILE__ ) ) ||
             ! current_user_can( 'manage_options' ) ||
             ! isset( $_POST[$this->booth_number_meta] )
-            ) {
+        ) {
             return;
         }
 
         $booth_number = sanitize_text_field( intval( $_POST[$this->booth_number_meta] ) );
         update_post_meta( $post_id, $this->booth_number_meta, $booth_number );
     }
+
 }

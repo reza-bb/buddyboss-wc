@@ -216,6 +216,7 @@ if ( ! class_exists( 'BuddyBoss_WC' ) ) {
 		 */
 		private function initialize_components() {
 			\BuddyBoss_WC\Includes\Booths\Booths_CPT::instance()->init();
+			\BuddyBoss_WC\Includes\Booths\Booths_Rest::instance();
 			\BuddyBoss_WC\Includes\Workshops\Workshops_CPT::instance()->init();
 		}
 	}

@@ -22,21 +22,21 @@ class Workshops_CPT {
      *
      * @var string
      */
-    public $post_type = 'bbwc-workshops';
+    private $post_type;
 
     /**
      * Undocumented variable
      *
      * @var string
      */
-    public $post_category = 'bbwc-workshops-category';
+    private $post_category;
 
     /**
      * Undocumented variable
      *
      * @var string
      */
-    public $post_location = 'bbwc-workshops-location';
+    private $post_location;
 
     /**
      * Undocumented variable
@@ -68,6 +68,10 @@ class Workshops_CPT {
      * @return void
      */
     public function init() {
+
+        $this->post_type     = bbwc_workshops_post_type();
+        $this->post_category = bbwc_workshops_category();
+        $this->post_location = bbwc_workshops_location();
 
         $this->type_key    = $this->post_type . '_type';
         $this->date_key    = $this->post_type . '_date';

@@ -22,14 +22,14 @@ class Booths_CPT {
      *
      * @var string
      */
-    private $post_type = 'bbwc-booths';
+    private $post_type;
 
     /**
      * Undocumented variable
      *
      * @var string
      */
-    private $post_taxonomy = 'bbwc-booths-category';
+    private $post_taxonomy;
 
     /**
      * Undocumented variable
@@ -58,7 +58,10 @@ class Booths_CPT {
      * @return void
      */
     public function init() {
+        $this->post_type         = bbwc_booths_post_type();
+        $this->post_taxonomy     = bbwc_booths_category();
         $this->booth_number_meta = $this->post_type . '_booth_number';
+
         add_action( 'init', array($this, 'register_booths') );
         add_action( 'init', array($this, 'register_booths_taxonomy') );
         add_action( 'admin_menu', array($this, 'register_booths_submenu') );

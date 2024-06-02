@@ -215,6 +215,7 @@ if ( ! class_exists( 'BuddyBoss_WC' ) ) {
 		 * @return void
 		 */
 		private function initialize_components() {
+			\BuddyBoss_WC\Includes\Filter\Filter_Rest::instance();
 			\BuddyBoss_WC\Includes\Booths\Booths_CPT::instance()->init();
 			\BuddyBoss_WC\Includes\Booths\Booths_Rest::instance();
 			\BuddyBoss_WC\Includes\Workshops\Workshops_CPT::instance()->init();

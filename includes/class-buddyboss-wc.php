@@ -24,6 +24,11 @@ if ( ! class_exists( 'BuddyBoss_WC' ) ) {
 		private $file = '';
 
 		/**
+		 * Plugin Version
+		 */
+		private $version = '';
+
+		/**
 		 * Throw Error While Trying To Clone Object
 		 *
 		 * @since 1.0.0
@@ -205,7 +210,6 @@ if ( ! class_exists( 'BuddyBoss_WC' ) ) {
 		 * @return void
 		 */
 		private function include_files() {
-			require_once BBWC_PLUGIN_DIR . 'includes/template-functions.php';
 		}
 
 		/**
@@ -216,9 +220,6 @@ if ( ! class_exists( 'BuddyBoss_WC' ) ) {
 		 */
 		private function initialize_components() {
 			\BuddyBoss_WC\Includes\Filter\Filter_Rest::instance();
-			\BuddyBoss_WC\Includes\Booths\Booths_CPT::instance()->init();
-			\BuddyBoss_WC\Includes\Booths\Booths_Rest::instance();
-			\BuddyBoss_WC\Includes\Workshops\Workshops_CPT::instance()->init();
 		}
 	}
 }

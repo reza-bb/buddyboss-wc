@@ -137,12 +137,12 @@ class Filter_Rest extends WP_REST_Controller {
             'post_tag',
             'track',
             'time',
-            'past_events',
-            'speakers',
+            'past_event',
+            'speaker',
         );
         $args              = array();
         $args['post_type'] = $this->post_type = strtolower( $request->get_param( 'post_type' ) );
-        $args['title']     = ! empty( $request->get_param( 'title' ) ) ? $request->get_param( 'title' ) : '';
+        $args['s']         = ! empty( $request->get_param( 's' ) ) ? $request->get_param( 's' ) : '';
         $page              = ! empty( $request->get_param( 'page' ) ) ? $request->get_param( 'page' ) : 1;
         $per_page          = ! empty( $request->get_param( 'per_page' ) ) ? $request->get_param( 'per_page' ) : 20;
         $args['offset']    = ( $page - 1 ) * $per_page;
@@ -168,13 +168,17 @@ class Filter_Rest extends WP_REST_Controller {
 
         $retval = array();
 
-        foreach ( $results as $result ) {
-            $retval[] = $this->prepare_response_for_collection(
-                $this->prepare_item_for_response( $result, $request )
-            );
+        if( is_array( $results['posts'] ) ) {
+            foreach ( $results['posts'] as $result ) {
+                $retval[] = $this->prepare_response_for_collection(
+                    $this->prepare_item_for_response( $result, $request )
+                );
+            }
         }
 
-        return rest_ensure_response( $retval );
+        $response = rest_ensure_response( $retval );
+        $response = $this->rest_response_add_total_headers( $response, $results['total'], $results['max_pages'], $page );
+        return $response;
     }
 
     /**
@@ -357,44 +361,38 @@ class Filter_Rest extends WP_REST_Controller {
      */
     public function prepare_date_response( $date_gmt, $date = null ) {
 
-// Use the date if passed.
+		// Use the date if passed.
         if ( isset( $date ) ) {
             return mysql_to_rfc3339( $date ); // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_to_rfc3339, PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved
         }
 
-// Return null if $date_gmt is empty/zeros.
+		// Return null if $date_gmt is empty/zeros.
         if ( '0000-00-00 00:00:00' === $date_gmt ) {
             return null;
         }
 
-                                            // Return the formatted datetime.
+        // Return the formatted datetime.
         return mysql_to_rfc3339( $date_gmt ); // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_to_rfc3339, PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved
     }
 
     /**
-     * Dispatch the request item.
+     * Undocumented function
      *
-     * @param WP_REST_Request $request Rest request.
-     *
-     * @return mixed
+     * @param WP_REST_Response $response
+     * @param integer $total
+     * @param integer $max_pages
+     * @param integer $page
+     * @return void
      */
+	public function rest_response_add_total_headers( WP_REST_Response $response, $total = 0, $max_pages = 0, $page = 0 ) {
+		if ( ! $total || ! $max_pages || ! $page ) {
+			return $response;
+		}
 
-// protected function dispatch( $request ) {
+		$response->header( 'X-WP-Total', (int) $total );
+		$response->header( 'X-WP-TotalPages', (int) $max_pages );
+        $response->header('X-WP-Page', (int) $page);
 
-//     $query_params = $request->get_params();
-
-//     if ( isset( $request->get_query_params()['_embed'] ) ) {
-
-//         $query_params['_embed'] = $request->get_query_params()['_embed'];
-
-//     }
-
-//     $request->set_query_params( $query_params );
-
-//     $server   = rest_get_server();
-
-//     $response = $server->dispatch( $request );
-
-//     return $response;
-    // }
+		return $response;
+	}
 }

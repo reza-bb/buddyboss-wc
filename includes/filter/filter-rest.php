@@ -35,6 +35,11 @@ class Filter_Rest extends WP_REST_Controller {
      */
     protected $rest_base = 'filter';
 
+    /**
+     * Queried Post Type.
+     *
+     * @var [type]
+     */
     protected $post_type;
 
     /**
@@ -352,6 +357,75 @@ class Filter_Rest extends WP_REST_Controller {
             ),
         );
 
+        if ( post_type_supports( $post->post_type, 'revisions' ) ) {
+            $revisions       = wp_get_latest_revision_id_and_total_count( $post->ID );
+            $revisions_count = ! is_wp_error( $revisions ) ? $revisions['count'] : 0;
+            $revisions_base  = sprintf( '%s/%d/revisions', $post_base, $post->ID );
+
+            $links['version-history'] = array(
+                'href'  => rest_url( $revisions_base ),
+                'count' => $revisions_count,
+            );
+        }
+
+        $post_type_obj = get_post_type_object( $post->post_type );
+
+        if ( $post_type_obj->hierarchical && ! empty( $post->post_parent ) ) {
+            $links['up'] = array(
+                'href'       => rest_url( rest_get_route_for_post( $post->post_parent ) ),
+                'embeddable' => true,
+            );
+        }
+
+        // If we have a featured media, add that.
+        $featured_media = get_post_thumbnail_id( $post->ID );
+
+        if ( $featured_media ) {
+            $image_url = rest_url( rest_get_route_for_post( $featured_media ) );
+
+            $links['https://api.w.org/featuredmedia'] = array(
+                'href'       => $image_url,
+                'embeddable' => true,
+            );
+        }
+
+        if ( ! in_array( $post->post_type, array( 'attachment', 'nav_menu_item', 'revision' ), true ) ) {
+            $attachments_url = rest_url( rest_get_route_for_post_type_items( 'attachment' ) );
+            $attachments_url = add_query_arg( 'parent', $post->ID, $attachments_url );
+
+            $links['https://api.w.org/attachment'] = array(
+                'href' => $attachments_url,
+            );
+        }
+
+        $taxonomies = get_object_taxonomies( $post->post_type );
+
+        if ( ! empty( $taxonomies ) ) {
+            $links['https://api.w.org/term'] = array();
+
+            foreach ( $taxonomies as $tax ) {
+                $taxonomy_route = rest_get_route_for_taxonomy_items( $tax );
+
+                // Skip taxonomies that are not public.
+                if ( empty( $taxonomy_route ) ) {
+                    continue;
+                }
+
+                $terms_url = add_query_arg(
+                    'post',
+                    $post->ID,
+                    rest_url( $taxonomy_route )
+                );
+
+                $links['https://api.w.org/term'][] = array(
+                    'href'       => $terms_url,
+                    'taxonomy'   => $tax,
+                    'embeddable' => true,
+                );
+            }
+
+        }
+
         return $links;
     }
 
@@ -366,17 +440,17 @@ class Filter_Rest extends WP_REST_Controller {
      */
     public function prepare_date_response( $date_gmt, $date = null ) {
 
-// Use the date if passed.
+        // Use the date if passed.
         if ( isset( $date ) ) {
             return mysql_to_rfc3339( $date ); // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_to_rfc3339, PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved
         }
 
-// Return null if $date_gmt is empty/zeros.
+        // Return null if $date_gmt is empty/zeros.
         if ( '0000-00-00 00:00:00' === $date_gmt ) {
             return null;
         }
 
-                                            // Return the formatted datetime.
+        // Return the formatted datetime.
         return mysql_to_rfc3339( $date_gmt ); // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_to_rfc3339, PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved
     }
 

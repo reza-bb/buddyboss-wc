@@ -151,7 +151,10 @@ class Filter_Rest extends WP_REST_Controller {
         foreach ( $allowed_tax as $taxonomy ) {
 
             if ( ! empty( $request->get_param( $taxonomy ) ) ) {
-                $args['tax_query'][$taxonomy] = $request->get_param( $taxonomy );
+                $terms = preg_replace( '/[\[\]]/', '', $request->get_param( $taxonomy ) );
+                $terms = explode( ',', $terms );
+
+                $args['tax_query'][$taxonomy] = $terms;
             }
 
         }
@@ -168,12 +171,14 @@ class Filter_Rest extends WP_REST_Controller {
 
         $retval = array();
 
-        if( is_array( $results['posts'] ) ) {
+        if ( is_array( $results['posts'] ) ) {
+
             foreach ( $results['posts'] as $result ) {
                 $retval[] = $this->prepare_response_for_collection(
                     $this->prepare_item_for_response( $result, $request )
                 );
             }
+
         }
 
         $response = rest_ensure_response( $retval );
@@ -361,17 +366,17 @@ class Filter_Rest extends WP_REST_Controller {
      */
     public function prepare_date_response( $date_gmt, $date = null ) {
 
-		// Use the date if passed.
+// Use the date if passed.
         if ( isset( $date ) ) {
             return mysql_to_rfc3339( $date ); // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_to_rfc3339, PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved
         }
 
-		// Return null if $date_gmt is empty/zeros.
+// Return null if $date_gmt is empty/zeros.
         if ( '0000-00-00 00:00:00' === $date_gmt ) {
             return null;
         }
 
-        // Return the formatted datetime.
+                                            // Return the formatted datetime.
         return mysql_to_rfc3339( $date_gmt ); // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_to_rfc3339, PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved
     }
 
@@ -384,15 +389,17 @@ class Filter_Rest extends WP_REST_Controller {
      * @param integer $page
      * @return void
      */
-	public function rest_response_add_total_headers( WP_REST_Response $response, $total = 0, $max_pages = 0, $page = 0 ) {
-		if ( ! $total || ! $max_pages || ! $page ) {
-			return $response;
-		}
+    public function rest_response_add_total_headers( WP_REST_Response $response, $total = 0, $max_pages = 0, $page = 0 ) {
 
-		$response->header( 'X-WP-Total', (int) $total );
-		$response->header( 'X-WP-TotalPages', (int) $max_pages );
-        $response->header('X-WP-Page', (int) $page);
+        if ( ! $total || ! $max_pages || ! $page ) {
+            return $response;
+        }
 
-		return $response;
-	}
+        $response->header( 'X-WP-Total', (int) $total );
+        $response->header( 'X-WP-TotalPages', (int) $max_pages );
+        $response->header( 'X-WP-Page', (int) $page );
+
+        return $response;
+    }
+
 }

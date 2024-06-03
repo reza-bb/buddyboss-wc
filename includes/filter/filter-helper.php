@@ -72,18 +72,20 @@ class Filter_Helper {
                     array(
                         'taxonomy' => $key,
                         'field'    => 'slug',
-                        'terms'    => array( $value ),
+                        'terms'    => is_array( $value ) ? $value : array( $value ),
                     )
                 );
             }
+
         }
 
         $filter_query = new \WP_Query( $filter_args );
 
-        $results          = array();
+        $results              = array();
         $results['posts']     = ! empty( $filter_query->posts ) ? $filter_query->posts : array();
         $results['total']     = ! empty( $filter_query->found_posts ) ? $filter_query->found_posts : 0;
         $results['max_pages'] = ! empty( $filter_query->max_num_pages ) ? $filter_query->max_num_pages : 0;
         return $results;
     }
+
 }

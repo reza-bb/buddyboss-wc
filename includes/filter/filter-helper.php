@@ -62,12 +62,16 @@ class Filter_Helper {
         }
 
         if ( ! empty( $args['past_event'] ) ) {
+            // $datetime     = new \DateTime( 'now', new \DateTimeZone( 'UTC+2' ) );
+            // $current_time = $datetime->format( 'Y-m-d H:i:s' );
 
             $filter_args['meta_query'] = array(
+                'relation' => 'AND',
                 array(
                     'key'     => 'start_time',
-                    'compare' => 'true' == $args['past_event'] ? '>' : '<',
+                    'compare' => 'true' == $args['past_event'] ? '<' : '>',
                     'value'   => current_time( 'Y-m-d H:i:s' ),
+                    // 'value'   => $current_time,
                 ),
             );
         }

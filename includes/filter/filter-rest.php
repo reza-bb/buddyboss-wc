@@ -141,17 +141,17 @@ class Filter_Rest extends WP_REST_Controller {
             'category',
             'post_tag',
             'track',
-            'time',
-            'past_event',
             'speaker',
+            'booth_number',
         );
-        $args              = array();
-        $args['post_type'] = $this->post_type = strtolower( $request->get_param( 'post_type' ) );
-        $args['s']         = ! empty( $request->get_param( 's' ) ) ? $request->get_param( 's' ) : '';
-        $page              = ! empty( $request->get_param( 'page' ) ) ? $request->get_param( 'page' ) : 1;
-        $per_page          = ! empty( $request->get_param( 'per_page' ) ) ? $request->get_param( 'per_page' ) : 20;
-        $args['offset']    = ( $page - 1 ) * $per_page;
-        $args['limit']     = $per_page;
+        $args               = array();
+        $args['post_type']  = $this->post_type  = strtolower( $request->get_param( 'post_type' ) );
+        $args['s']          = ! empty( $request->get_param( 's' ) ) ? $request->get_param( 's' ) : '';
+        $args['past_event'] = ! empty( $request->get_param( 'past_event' ) ) ? $request->get_param( 'past_event' ) : '';
+        $page               = ! empty( $request->get_param( 'page' ) ) ? $request->get_param( 'page' ) : 1;
+        $per_page           = ! empty( $request->get_param( 'per_page' ) ) ? $request->get_param( 'per_page' ) : 20;
+        $args['offset']     = ( $page - 1 ) * $per_page;
+        $args['limit']      = $per_page;
 
         foreach ( $allowed_tax as $taxonomy ) {
 
@@ -315,7 +315,7 @@ class Filter_Rest extends WP_REST_Controller {
         foreach ( $taxonomies as $taxonomy ) {
             $base        = ! empty( $taxonomy->rest_base ) ? $taxonomy->rest_base : $taxonomy->name;
             $terms       = get_the_terms( $post, $taxonomy->name );
-            $data[$base] = $terms ? array_values( wp_list_pluck( $terms, 'term_id' ) ) : array();
+            $data[$base] = $terms ? array_values( wp_list_pluck( $terms, 'name' ) ) : array();
         }
 
         $context = ! empty( $request['context'] ) ? $request['context'] : 'view';

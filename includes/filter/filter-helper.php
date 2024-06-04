@@ -61,7 +61,18 @@ class Filter_Helper {
             $filter_args['s'] = $args['s'];
         }
 
-        if ( is_array( $args['tax_query'] ) && ! empty( $args['tax_query'] ) ) {
+        if ( ! empty( $args['past_event'] ) ) {
+
+            $filter_args['meta_query'] = array(
+                array(
+                    'key'     => 'start_time',
+                    'compare' => 'true' == $args['past_event'] ? '>' : '<',
+                    'value'   => current_time( 'Y-m-d H:i:s' ),
+                ),
+            );
+        }
+
+        if ( ! empty( $args['tax_query'] ) && is_array( $args['tax_query'] ) && ! empty( $args['tax_query'] ) ) {
             $filter_args['tax_query'] = array(
                 'relation' => 'AND',
             );

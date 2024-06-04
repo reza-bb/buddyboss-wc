@@ -71,6 +71,7 @@ class Filter_Helper {
                     'key'     => 'start_time',
                     'compare' => 'true' == $args['past_event'] ? '<' : '>',
                     'value'   => current_time( 'Y-m-d H:i:s' ),
+                    'type' => 'DATETIME',
                     // 'value'   => $current_time,
                 ),
             );

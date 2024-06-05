@@ -2,10 +2,12 @@
 /**
  * Class Filter_Rest.
  *
- * @package BuddyBoss_WC\Includes
+ * @package BuddyBoss_WC\Includes\Filter
  */
 
 namespace BuddyBoss_WC\Includes\Filter;
+
+defined('ABSPATH') || exit;
 
 use BuddyBoss_WC\Includes\Filter\Filter_Helper as Helper;
 use WP_Error;
@@ -50,7 +52,7 @@ class Filter_Rest extends WP_REST_Controller {
     protected static $instance;
 
     /**
-     * AccountSettingsRest constructor.
+     * Filter_Rest constructor.
      */
     public function __construct() {
         /** Nothing here */
@@ -66,7 +68,6 @@ class Filter_Rest extends WP_REST_Controller {
         if ( ! isset( self::$instance ) ) {
             $class          = __CLASS__;
             self::$instance = new $class();
-            self::$instance->hooks();
         }
 
         return self::$instance;

@@ -56,7 +56,7 @@ if ( ! class_exists( 'BuddyBoss_WC' ) ) {
          */
         public static function instantiate( $file = '' ) {
 
-// Return if already instantiated
+            // Return if already instantiated
             if ( self::instantiated() ) {
                 return self::$instance;
             }
@@ -67,7 +67,6 @@ if ( ! class_exists( 'BuddyBoss_WC' ) ) {
             self::$instance->define_tables();
             self::$instance->include_files();
             self::$instance->initialize_components();
-            self::$instance->initialize_hooks();
 
             return self::$instance;
 
@@ -216,76 +215,14 @@ if ( ! class_exists( 'BuddyBoss_WC' ) ) {
         }
 
         /**
-         * Initialize All Components
+         * Initialize All Components.
          *
          * @since 1.0.0
          * @return void
          */
         private function initialize_components() {
-            \BuddyBoss_WC\Includes\Filter\Filter_Rest::instance();
-        }
-
-        /**
-         * Initialize All Hooks
-         *
-         * @since 1.0.0
-         * @return void
-         */
-        private function initialize_hooks() {
-            add_filter( 'bbapp_editor_allowed_cpt', array( $this, 'allow_wordcamp_cpt' ) );
-            add_filter( 'bbapp_disallowed_block_for_other_cpt', array( $this, 'allow_bbapp_blocks_cpt' ) );
-            add_action( 'rest_api_init', array( $this, 'register_content_native_field' ), 99 );
-        }
-
-        /**
-         * Undocumented function
-         *
-         * @param [type] $allowed_cpt
-         * @return void
-         */
-        public function allow_wordcamp_cpt( $allowed_cpt ) {
-            $allowed_cpt[] = 'keynotes';
-            $allowed_cpt[] = 'booths';
-            $allowed_cpt[] = 'workshop';
-            return $allowed_cpt;
-        }
-
-        /**
-         * Undocumented function
-         *
-         * @return void
-         */
-        public function register_content_native_field() {
-            $object_types = array(
-                'keynotes',
-                'booths',
-                'workshop',
-            );
-
-            foreach ( $object_types as $object_type ) {
-                register_rest_field(
-                    $object_type,
-                    'content_native',
-                    array(
-                        'get_callback'    => array( \BuddyBossApp\NativeAppPage\Gutenberg::instance(), 'get_content_native' ),
-                        'update_callback' => null,
-                        'schema'          => null,
-                    )
-                );
-            }
-        }
-
-        /**
-         * Undocumented function
-         *
-         * @param [type] $disallowed_blocks
-         * @return void
-         */
-        public function allow_bbapp_blocks_cpt( $disallowed_blocks ) {
-            return array_diff(
-                $disallowed_blocks,
-                array( 'bbapp/posts' )
-            );
+            \BuddyBoss_WC\Includes\Filter\Filter_Rest::instance()->hooks();
+            \BuddyBoss_WC\Includes\Blocks\Hooks::instance()->hooks();
         }
 
     }

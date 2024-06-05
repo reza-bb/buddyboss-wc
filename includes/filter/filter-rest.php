@@ -7,7 +7,7 @@
 
 namespace BuddyBoss_WC\Includes\Filter;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use BuddyBoss_WC\Includes\Filter\Filter_Helper as Helper;
 use WP_Error;
@@ -140,17 +140,21 @@ class Filter_Rest extends WP_REST_Controller {
 
         $allowed_tax = array(
             'category',
+            'company_category',
+            'workshop_category',
             'post_tag',
             'track',
             'speaker',
             'booth_number',
-            'company_category',
         );
+
         $args               = array();
         $args['post_type']  = $this->post_type  = strtolower( $request->get_param( 'post_type' ) );
         $args['s']          = ! empty( $request->get_param( 'search' ) ) ? $request->get_param( 'search' ) : '';
         $args['past_event'] = ! empty( $request->get_param( 'past_event' ) ) ? $request->get_param( 'past_event' ) : '';
         $args['day']        = ! empty( $request->get_param( 'day' ) ) ? $request->get_param( 'day' ) : '';
+        $args['order']      = ! empty( $request->get_param( 'order' ) ) ? $request->get_param( 'order' ) : 'asc';
+        $args['orderby']    = ! empty( $request->get_param( 'orderby' ) ) ? $request->get_param( 'orderby' ) : 'date';
         $page               = ! empty( $request->get_param( 'page' ) ) ? $request->get_param( 'page' ) : 1;
         $per_page           = ! empty( $request->get_param( 'per_page' ) ) ? $request->get_param( 'per_page' ) : 20;
         $args['offset']     = ( $page - 1 ) * $per_page;
@@ -409,7 +413,7 @@ class Filter_Rest extends WP_REST_Controller {
             foreach ( $taxonomies as $tax ) {
                 $taxonomy_route = rest_get_route_for_taxonomy_items( $tax );
 
-                // Skip taxonomies that are not public.
+// Skip taxonomies that are not public.
                 if ( empty( $taxonomy_route ) ) {
                     continue;
                 }
@@ -443,17 +447,17 @@ class Filter_Rest extends WP_REST_Controller {
      */
     public function prepare_date_response( $date_gmt, $date = null ) {
 
-        // Use the date if passed.
+// Use the date if passed.
         if ( isset( $date ) ) {
             return mysql_to_rfc3339( $date ); // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_to_rfc3339, PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved
         }
 
-        // Return null if $date_gmt is empty/zeros.
+// Return null if $date_gmt is empty/zeros.
         if ( '0000-00-00 00:00:00' === $date_gmt ) {
             return null;
         }
 
-        // Return the formatted datetime.
+                                            // Return the formatted datetime.
         return mysql_to_rfc3339( $date_gmt ); // phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_to_rfc3339, PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved
     }
 

@@ -53,17 +53,27 @@ class Filter_Helper {
         $filter_args = array(
             'post_type'      => $args['post_type'],
             'post_status'    => 'publish',
+            'order'          => $args['order'],
+            'orderby'        => $args['orderby'],
             'posts_per_page' => $args['limit'],
             'offset'         => $args['offset'],
         );
         $meta_query = array();
+
+        if ( in_array( $args['orderby'], array( 'start_time', 'end_time' ) ) ) {
+            $filter_args['order']     = $args['order'];
+            $filter_args['orderby']   = 'meta_value';
+            $filter_args['meta_type'] = 'DATETIME';
+            $filter_args['meta_key']  = $args['orderby'];
+        }
 
         if ( ! empty( $args['s'] ) ) {
             $filter_args['s'] = $args['s'];
         }
 
         if ( ! empty( $args['past_event'] ) ) {
-            // $datetime     = new \DateTime( 'now', new \DateTimeZone( 'UTC+2' ) );
+
+// $datetime     = new \DateTime( 'now', new \DateTimeZone( 'UTC+2' ) );
             // $current_time = $datetime->format( 'Y-m-d H:i:s' );
             $meta_query[] = array(
                 'key'     => 'start_time',

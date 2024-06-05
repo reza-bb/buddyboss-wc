@@ -56,6 +56,7 @@ class Filter_Helper {
             'posts_per_page' => $args['limit'],
             'offset'         => $args['offset'],
         );
+        $meta_query = array();
 
         if ( ! empty( $args['s'] ) ) {
             $filter_args['s'] = $args['s'];
@@ -64,20 +65,35 @@ class Filter_Helper {
         if ( ! empty( $args['past_event'] ) ) {
             // $datetime     = new \DateTime( 'now', new \DateTimeZone( 'UTC+2' ) );
             // $current_time = $datetime->format( 'Y-m-d H:i:s' );
-
-            $filter_args['meta_query'] = array(
-                'relation' => 'AND',
-                array(
-                    'key'     => 'start_time',
-                    'compare' => 'true' == $args['past_event'] ? '<' : '>',
-                    'value'   => current_time( 'Y-m-d H:i:s' ),
-                    'type' => 'DATETIME',
-                    // 'value'   => $current_time,
-                ),
+            $meta_query[] = array(
+                'key'     => 'start_time',
+                'compare' => 'true' == $args['past_event'] ? '<' : '>',
+                'value'   => current_time( 'Y-m-d H:i:s' ),
+                'type'    => 'DATETIME',
+                // 'value'   => $current_time,
             );
         }
 
-        if ( ! empty( $args['tax_query'] ) && is_array( $args['tax_query'] ) && ! empty( $args['tax_query'] ) ) {
+        if ( ! empty( $args['day'] ) ) {
+            $meta_query[] = array(
+                'key'     => 'day',
+                'compare' => '=',
+                'value'   => $args['day'],
+            );
+        }
+
+        if ( is_array( $meta_query ) && ! empty( $meta_query ) ) {
+            $filter_args['meta_query'] = array(
+                'relation' => 'AND',
+            );
+
+            foreach ( $meta_query as $query ) {
+                array_push( $filter_args['meta_query'], $query );
+            }
+
+        }
+
+        if ( isset( $args['tax_query'] ) && is_array( $args['tax_query'] ) ) {
             $filter_args['tax_query'] = array(
                 'relation' => 'AND',
             );

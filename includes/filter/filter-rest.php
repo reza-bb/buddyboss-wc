@@ -143,11 +143,13 @@ class Filter_Rest extends WP_REST_Controller {
             'track',
             'speaker',
             'booth_number',
+            'company_category',
         );
         $args               = array();
         $args['post_type']  = $this->post_type  = strtolower( $request->get_param( 'post_type' ) );
-        $args['s']          = ! empty( $request->get_param( 's' ) ) ? $request->get_param( 's' ) : '';
+        $args['s']          = ! empty( $request->get_param( 'search' ) ) ? $request->get_param( 'search' ) : '';
         $args['past_event'] = ! empty( $request->get_param( 'past_event' ) ) ? $request->get_param( 'past_event' ) : '';
+        $args['day']        = ! empty( $request->get_param( 'day' ) ) ? $request->get_param( 'day' ) : '';
         $page               = ! empty( $request->get_param( 'page' ) ) ? $request->get_param( 'page' ) : 1;
         $per_page           = ! empty( $request->get_param( 'per_page' ) ) ? $request->get_param( 'per_page' ) : 20;
         $args['offset']     = ( $page - 1 ) * $per_page;
